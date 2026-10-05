@@ -11,100 +11,102 @@
             color: #333;
             max-width: 1000px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 15px;
         }
         h1 {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: #2c3e50;
             border-bottom: 2px solid #3498db;
-            padding-bottom: 8px;
+            padding-bottom: 6px;
             margin-bottom: 10px;
         }
         .hint {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: #64748b;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            line-height: 1.4;
         }
         .container {
             display: flex;
-            gap: 20px;
+            gap: 15px;
             flex-wrap: wrap;
         }
-        /* 選択肢プールエリア（Bの地区名置き場） */
+        /* 選択肢プールエリア（地区名置き場） */
         .source-section {
             flex: 1;
             min-width: 280px;
             background: #fff;
-            padding: 15px;
+            padding: 12px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .source-section h2 {
-            font-size: 1rem;
+            font-size: 0.95rem;
             color: #1e293b;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 5px;
+            padding-bottom: 4px;
         }
         .item-pool {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            min-height: 300px;
+            gap: 6px;
+            min-height: 150px;
             background: #f8fafc;
-            padding: 10px;
+            padding: 8px;
             border-radius: 6px;
             border: 2px dashed #cbd5e1;
         }
-        /* Aの枠組み（ドロップゾーン） */
+        /* Aの枠組み（ドロップゾーン代わりの配置エリア） */
         .drop-zones-section {
             flex: 2;
-            min-width: 400px;
+            min-width: 300px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
         }
         .drop-zone-box {
             background: #fff;
-            padding: 15px;
+            padding: 12px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             border-left: 5px solid #3498db;
         }
         .drop-zone-box h3 {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: #1e293b;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         .drop-target {
-            min-height: 70px;
+            min-height: 60px;
             background: #f8fafc;
             border: 2px dashed #cbd5e1;
             border-radius: 6px;
-            padding: 8px;
+            padding: 6px;
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 6px;
             align-content: flex-start;
         }
-        /* ドラッグするアイテム（地区名タグ） */
+        /* アイテム（地区名タグ） */
         .draggable-item {
             background-color: #ffffff;
             border: 1px solid #94a3b8;
             color: #334155;
-            padding: 8px 12px;
+            padding: 8px 10px;
             border-radius: 6px;
-            cursor: grab;
-            font-size: 0.9rem;
+            cursor: pointer;
+            font-size: 0.85rem;
             user-select: none;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            transition: background-color 0.2s, border-color 0.2s;
+            transition: all 0.2s;
         }
-        .draggable-item:active {
-            cursor: grabbing;
-        }
-        .draggable-item.dragging {
-            opacity: 0.4;
+        /* 選択されている状態 */
+        .draggable-item.selected {
+            background-color: #3498db !important;
+            color: white !important;
+            border-color: #2980b9 !important;
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.6);
         }
         /* 判定結果のスタイル */
         .draggable-item.correct {
@@ -121,7 +123,7 @@
         }
         /* 操作ボタン */
         .action-bar {
-            margin-top: 20px;
+            margin-top: 15px;
             display: flex;
             gap: 10px;
         }
@@ -129,11 +131,12 @@
             background-color: #3498db;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 10px 16px;
             border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
+            flex: 1;
         }
         button:hover {
             background-color: #2980b9;
@@ -145,27 +148,27 @@
             background-color: #64748b;
         }
         #result-message {
-            margin-top: 15px;
+            margin-top: 12px;
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 0.95rem;
         }
     </style>
 </head>
 <body>
 
     <h1>補助的地域地区（定められる場所） - 分類クイズ</h1>
-    <div class="hint">💡 Bの地区名をドラッグ＆ドロップして、正しいAの枠組みに移動させてください。終わったら「判定する」を押してくださいね！</div>
+    <div class="hint">💡 地区名をタップして選択し、移動先の枠（または一覧）をタップすると移動します。</div>
 
     <div class="container">
         <!-- Bの選択肢プール -->
         <div class="source-section">
             <h2>地区名一覧 (B)</h2>
-            <div id="pool" class="drop-target" ondragover="allowDrop(event)" ondragleave="removeDragOver(event)" ondrop="dropToPool(event)">
+            <div id="pool" class="drop-target" onclick="handleAreaClick(this, null)">
                 <!-- JavaScriptで配置されます -->
             </div>
         </div>
 
-        <!-- Aの枠組み（ドロップゾーン） -->
+        <!-- Aの枠組み（配置エリア） -->
         <div class="drop-zones-section" id="zones-container">
             <!-- JavaScriptで動的生成 -->
         </div>
@@ -210,10 +213,11 @@ const categories = [
     }
 ];
 
-let draggedElement = null;
+let selectedItem = null;
 
 function initQuiz() {
     document.getElementById('result-message').textContent = '';
+    selectedItem = null;
     const pool = document.getElementById('pool');
     const zonesContainer = document.getElementById('zones-container');
     
@@ -234,13 +238,13 @@ function initQuiz() {
         pool.appendChild(createItemElement(item.text, item.category, index));
     });
 
-    // Aの枠組み（ドロップゾーン）を生成
+    // Aの枠組みを生成
     categories.forEach(cat => {
         const box = document.createElement('div');
         box.className = 'drop-zone-box';
         box.innerHTML = `
             <h3>${cat.title}</h3>
-            <div class="drop-target" data-category="${cat.id}" ondragover="allowDrop(event)" ondragleave="removeDragOver(event)" ondrop="drop(event)"></div>
+            <div class="drop-target" data-category="${cat.id}" onclick="handleAreaClick(this, '${cat.id}')"></div>
         `;
         zonesContainer.appendChild(box);
     });
@@ -250,52 +254,34 @@ function createItemElement(text, categoryId, index) {
     const div = document.createElement('div');
     div.className = 'draggable-item';
     div.textContent = text;
-    div.draggable = true;
     div.dataset.category = categoryId;
     div.dataset.id = "item-" + index;
 
-    div.addEventListener('dragstart', (e) => {
-        draggedElement = div;
-        div.classList.add('dragging');
-    });
-
-    div.addEventListener('dragend', () => {
-        div.classList.remove('dragging');
-        draggedElement = null;
+    // タップされたときの処理
+    div.addEventListener('click', (e) => {
+        e.stopPropagation(); // エリア全体のクリック発火を防ぐ
+        
+        if (selectedItem === div) {
+            // すでに選択中なら選択解除
+            div.classList.remove('selected');
+            selectedItem = null;
+        } else {
+            // ほかの選択を解除して新しく選択
+            document.querySelectorAll('.draggable-item').forEach(item => item.classList.remove('selected'));
+            div.classList.add('selected');
+            selectedItem = div;
+        }
     });
 
     return div;
 }
 
-function allowDrop(e) {
-    e.preventDefault();
-    const target = e.target.closest('.drop-target');
-    if (target) {
-        target.style.backgroundColor = '#f1f5f9';
-    }
-}
-
-function removeDragOver(e) {
-    const target = e.target.closest('.drop-target');
-    if (target) {
-        target.style.backgroundColor = '#f8fafc';
-    }
-}
-
-function drop(e) {
-    e.preventDefault();
-    const target = e.target.closest('.drop-target');
-    if (target && draggedElement) {
-        target.style.backgroundColor = '#f8fafc';
-        target.appendChild(draggedElement);
-    }
-}
-
-function dropToPool(e) {
-    e.preventDefault();
-    const pool = document.getElementById('pool');
-    if (draggedElement) {
-        pool.appendChild(draggedElement);
+// 置き場所（プールまたは各カテゴリ枠）がタップされたとき
+function handleAreaClick(areaElement, categoryId) {
+    if (selectedItem) {
+        areaElement.appendChild(selectedItem);
+        selectedItem.classList.remove('selected');
+        selectedItem = null;
     }
 }
 
@@ -306,7 +292,7 @@ function checkAnswers() {
 
     if (unplacedCount > 0) {
         msg.style.color = '#d97706';
-        msg.textContent = `⚠️ まだ未配置の地区が ${unplacedCount} 個あります！すべて配置してから判定してください。`;
+        msg.textContent = `⚠️ 未配置の地区が ${unplacedCount} 個あります。すべて配置してください。`;
         return;
     }
 
@@ -335,7 +321,7 @@ function checkAnswers() {
         msg.textContent = `🎉 全問正解です！素晴らしい！`;
     } else {
         msg.style.color = '#dc2626';
-        msg.textContent = `❌ 不正解の項目（赤色の枠）があります。配置を確認してみましょう！`;
+        msg.textContent = `❌ 不正解の項目（赤色の枠）があります。配置を確認しましょう！`;
     }
 }
 
